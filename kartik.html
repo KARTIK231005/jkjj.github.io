@@ -1,0 +1,154 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Do You Love Me?</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f8ff;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            text-align: center;
+            position: relative;
+        }
+        .eyes {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .eye {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border: 2px solid black;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .pupil {
+            width: 20px;
+            height: 20px;
+            background-color: black;
+            border-radius: 50%;
+            position: absolute;
+            transition: transform 0.1s ease-out;
+        }
+        #buttons {
+            position: relative;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            position: absolute;
+        }
+        #yes-button {
+            left: 60%;
+        }
+        #no-button {
+            left: 20%;
+        }
+        #message {
+            font-size: 24px;
+            color: green;
+            margin-top: 20px;
+        }
+        h1 {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="eyes">
+            <div class="eye">
+                <div class="pupil" id="left-pupil"></div>
+            </div>
+            <div class="eye">
+                <div class="pupil" id="right-pupil"></div>
+            </div>
+        </div>
+        <h1 id="question">Do You Love Me?</h1>
+        <div id="buttons">
+            <button id="no-button">No</button>
+            <button id="yes-button">Yes</button>
+        </div>
+    </div>
+    <script>
+        const noButton = document.getElementById('no-button');
+        const yesButton = document.getElementById('yes-button');
+        const question = document.getElementById('question');
+        const leftPupil = document.getElementById('left-pupil');
+        const rightPupil = document.getElementById('right-pupil');
+        const buttonArea = document.getElementById('buttons');
+        const margin = 50; // Minimum distance from the mouse for the No button
+
+        // Get boundaries of the button area
+        const areaRect = buttonArea.getBoundingClientRect();
+
+        // Move "No" button within its area when the mouse gets close
+        document.addEventListener('mousemove', (event) => {
+            const mouseX = event.clientX;
+            const mouseY = event.clientY;
+
+            const rect = noButton.getBoundingClientRect();
+            const buttonX = rect.left + rect.width / 2;
+            const buttonY = rect.top + rect.height / 2;
+
+            const distance = Math.sqrt(Math.pow(mouseX - buttonX, 2) + Math.pow(mouseY - buttonY, 2));
+
+            if (distance < margin) {
+                const offsetX = (mouseX - buttonX) * 0.2; // Move away faster
+                const offsetY = (mouseY - buttonY) * 0.2;
+
+                let newLeft = rect.left - offsetX - areaRect.left;
+                let newTop = rect.top - offsetY - areaRect.top;
+
+                // Keep the button within its area
+                newLeft = Math.max(0, Math.min(buttonArea.clientWidth - rect.width, newLeft));
+                newTop = Math.max(0, Math.min(buttonArea.clientHeight - rect.height, newTop));
+
+                noButton.style.left = `${newLeft}px`;
+                noButton.style.top = `${newTop}px`;
+            }
+
+            // Make the pupils follow the mouse
+            const movePupil = (pupil, eyeX, eyeY) => {
+                const deltaX = mouseX - eyeX;
+                const deltaY = mouseY - eyeY;
+                const angle = Math.atan2(deltaY, deltaX);
+                const maxDistance = 15; // Maximum distance the pupil can move
+                const offsetX = Math.cos(angle) * maxDistance;
+                const offsetY = Math.sin(angle) * maxDistance;
+
+                pupil.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+            };
+
+            const leftEyeRect = leftPupil.parentElement.getBoundingClientRect();
+            const rightEyeRect = rightPupil.parentElement.getBoundingClientRect();
+
+            movePupil(leftPupil, leftEyeRect.left + leftEyeRect.width / 2, leftEyeRect.top + leftEyeRect.height / 2);
+            movePupil(rightPupil, rightEyeRect.left + rightEyeRect.width / 2, rightEyeRect.top + rightEyeRect.height / 2);
+        });
+
+        // Replace question text when "Yes" button is clicked
+        yesButton.addEventListener('click', () => {
+            question.textContent = "I love you too!";
+        });
+    </script>
+</body>
+</html>
